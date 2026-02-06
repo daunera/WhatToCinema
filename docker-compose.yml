@@ -8,20 +8,31 @@ services:
     environment:
       - API_KEY=${API_KEY}
       - MOVIE_THEATER_URLS=${MOVIE_THEATER_URLS}
+      - SKIP_MOVIE_KEYWORDS=${SKIP_MOVIE_KEYWORDS}
     volumes:
-      - ./data:/app/data
+      - data:/app/data
+    networks:
+      - dokploy-network
 
   frontend:
     build: ./frontend
     container_name: mozi-frontend
     restart: always
-    ports:
-      - "3000:3000"
+    expose:
+      - 3000
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3000/backend
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+      - BACKEND_URL=http://backend:8000/api
       - API_KEY=${API_KEY}
+      - AUTH_PASSCODE=${AUTH_PASSCODE}
     depends_on:
       - backend
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
 
 volumes:
   data:
