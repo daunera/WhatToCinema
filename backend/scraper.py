@@ -44,7 +44,7 @@ def clean_movie_title(title):
     return cleaned_title
 
 def get_details_type(type_text):
-    """Normalize detail type (e.g. M -> Dubbed, F -> Subtitled)."""
+    """Normalize detail type (e.g. M -> Hungarian, F -> Subtitled)."""
     if not type_text:
         return 'szinkronizált'
     type_text = type_text.strip().upper()
@@ -52,6 +52,8 @@ def get_details_type(type_text):
         return 'magyar nyelvű'
     if type_text == 'F':
         return 'feliratos'
+    if type_text == 'E':
+        return 'eredeti nyelvű'
     return 'szinkronizált'
 
 HU_MONTHS = {
