@@ -14,7 +14,7 @@ COPY . .
 EXPOSE 8000
 
 # Metadata
-LABEL project="mozi-berlet-backend"
+LABEL project="what-to-cinema-backend"
 
 # Command
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
