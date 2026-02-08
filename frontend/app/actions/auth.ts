@@ -25,7 +25,7 @@ export async function verifyPasscode(passcode: string) {
         return { success: true };
     }
 
-    return { success: false, error: "Helytelen jelkód" };
+    return { success: false, error: "Helytelen jelszó" };
 }
 
 export async function logout() {

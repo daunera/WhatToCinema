@@ -31,7 +31,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
             if (result.success) {
                 setIsAuthenticated(true);
             } else {
-                setError(result.error || "Helytelen jelkód");
+                setError(result.error || "Helytelen jelszó");
             }
         } catch (err) {
             setError("Hiba történt a hitelesítés során");
@@ -43,7 +43,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
     if (isAuthenticated === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="animate-pulse text-muted-foreground italic">Bejelentkezés...</div>
+                <div className="animate-pulse text-muted-foreground">Bejelentkezés...</div>
             </div>
         );
     }
@@ -56,9 +56,6 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
                         <h1 className="text-3xl font-bold tracking-tight text-foreground">
                             {process.env.NEXT_PUBLIC_APP_NAME || "Mi megy a moziba?"}
                         </h1>
-                        <p className="text-muted-foreground italic">
-                            A tartalom megtekintéséhez add meg a jelkódot.
-                        </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -67,7 +64,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
                                 type="password"
                                 value={passcode}
                                 onChange={(e) => setPasscode(e.target.value)}
-                                placeholder="Jelkód"
+                                placeholder="Jelszó"
                                 autoFocus
                                 className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl tracking-[0.5em] transition-all"
                                 disabled={isLoading}
