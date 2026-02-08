@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@/components/I18nProvider';
 
 interface Showtime {
     id: number;
@@ -25,7 +26,7 @@ interface MovieListRowProps {
     onToggleFavorite: (title: string) => void;
 }
 
-const StarIcon = ({ filled, onClick }: { filled: boolean; onClick: () => void }) => (
+const StarIcon = ({ filled, onClick, titleOn, titleOff }: { filled: boolean; onClick: () => void; titleOn: string; titleOff: string }) => (
     <button
         onClick={(e) => {
             e.preventDefault();
@@ -33,7 +34,7 @@ const StarIcon = ({ filled, onClick }: { filled: boolean; onClick: () => void })
             onClick();
         }}
         className="flex-shrink-0 focus:outline-none group/star"
-        title={filled ? "Eltávolítás a kedvencekből" : "Hozzáadás a kedvencekhez"}
+        title={filled ? titleOn : titleOff}
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -78,6 +79,8 @@ const AgeIcon = ({ url, age }: { url: string | null, age: string }) => {
 };
 
 export default function MovieListRow({ movie, onToggleFavorite }: MovieListRowProps) {
+    const { dict } = useTranslation();
+
     // Group showtimes by Cinema
     const showtimesByCinema = movie.showtimes.reduce((acc, st) => {
         if (!acc[st.cinema_name]) {
@@ -105,7 +108,7 @@ export default function MovieListRow({ movie, onToggleFavorite }: MovieListRowPr
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs text-center p-1">
-                                    Nincs kép
+                                    {dict.movie.noImage}
                                 </div>
                             )}
                         </div>
@@ -125,6 +128,8 @@ export default function MovieListRow({ movie, onToggleFavorite }: MovieListRowPr
                                 <StarIcon
                                     filled={movie.isFavorite}
                                     onClick={() => onToggleFavorite(movie.title)}
+                                    titleOn={dict.movie.removeFavorite}
+                                    titleOff={dict.movie.addFavorite}
                                 />
                             </div>
                         </div>

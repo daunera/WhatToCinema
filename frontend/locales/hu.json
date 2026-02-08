@@ -1,0 +1,36 @@
+{
+    "metadata": {
+        "title": "Mi megy a moziba?",
+        "description": "Menni kű abba a moziba befele, ha már ingyen vagyon!",
+        "keywords": "mozi, film, vetítés, műsor"
+    },
+    "common": {
+        "loading": "Műsor betöltése...",
+        "error": "Hiba történt",
+        "refresh": "Frissítés",
+        "refreshTooltip": "Műsor frissítése",
+        "logout": "Kijelentkezés",
+        "logoutTooltip": "Kijelentkezés",
+        "cancel": "Mégsem",
+        "confirm": "Megerősítés",
+        "updated": "Frissítve:",
+        "noData": "Nincs elérhető műsor.",
+        "allCinemas": "Összes mozi",
+        "filterCinema": "Mozi szűrése"
+    },
+    "movie": {
+        "noImage": "Nincs kép",
+        "addFavorite": "Hozzáadás a kedvencekhez",
+        "removeFavorite": "Eltávolítás a kedvencekből",
+        "details": "Részletek"
+    },
+    "auth": {
+        "logoutConfirmTitle": "Kijelentkezés",
+        "logoutConfirmMessage": "Biztosan ki szeretnél jelentkezni?",
+        "passwordPlaceholder": "Jelszó",
+        "submit": "Belépés",
+        "passwordError": "Helytelen jelszó",
+        "genericError": "Hiba történt a hitelesítés során",
+        "loading": "Bejelentkezés..."
+    }
+}

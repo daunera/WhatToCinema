@@ -1,0 +1,36 @@
+{
+    "metadata": {
+        "title": "What's in the cinema?",
+        "description": "Check out what's playing in the movies!",
+        "keywords": "cinema, movie, showtime, schedule"
+    },
+    "common": {
+        "loading": "Loading schedule...",
+        "error": "An error occurred",
+        "refresh": "Refresh",
+        "refreshTooltip": "Refresh schedule",
+        "logout": "Logout",
+        "logoutTooltip": "Logout",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "updated": "Updated:",
+        "noData": "No schedule available.",
+        "allCinemas": "All cinemas",
+        "filterCinema": "Filter cinema"
+    },
+    "movie": {
+        "noImage": "No image",
+        "addFavorite": "Add to favorites",
+        "removeFavorite": "Remove from favorites",
+        "details": "Details"
+    },
+    "auth": {
+        "logoutConfirmTitle": "Logout",
+        "logoutConfirmMessage": "Are you sure you want to logout?",
+        "passwordPlaceholder": "Password",
+        "submit": "Enter",
+        "passwordError": "Incorrect password",
+        "genericError": "An error occurred during authentication",
+        "loading": "Logging in..."
+    }
+}

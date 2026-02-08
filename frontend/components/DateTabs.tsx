@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { format, parseISO, getDay } from 'date-fns';
-import { hu } from 'date-fns/locale';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
+import { useTranslation } from '@/components/I18nProvider';
 
 interface DateTabsProps {
     dates: string[];
@@ -21,6 +21,8 @@ export default function DateTabs({
     selectedCinema,
     onSelectCinema
 }: DateTabsProps) {
+    const { dict, locale, dateLocale } = useTranslation();
+
     // Logic:
     // Render a fixed filter button on the left, separated by a vertical divider.
     // To the right of the divider, render the scrollable list of dates.
@@ -28,8 +30,8 @@ export default function DateTabs({
     const DateButton = ({ date }: { date: string }) => {
         const isSelected = selectedDate === date;
         const dateObj = parseISO(date);
-        const dayName = format(dateObj, 'EEE', { locale: hu }); // Short name
-        const dayNum = format(dateObj, 'MMM d.', { locale: hu });
+        const dayName = format(dateObj, 'EEE', { locale: dateLocale }); // Short name
+        const dayNum = format(dateObj, 'MMM d.', { locale: dateLocale });
 
         return (
             <button
@@ -58,7 +60,7 @@ export default function DateTabs({
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
                     )}
-                    title="Mozi szűrése"
+                    title={dict.common.filterCinema}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
@@ -85,7 +87,7 @@ export default function DateTabs({
                                             !selectedCinema && "font-bold bg-accent/50"
                                         )}
                                     >
-                                        Összes mozi
+                                        {dict.common.allCinemas}
                                     </button>
                                 )}
                             </Menu.Item>

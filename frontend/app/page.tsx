@@ -7,6 +7,7 @@ import { logout } from '@/app/actions/auth';
 import DateTabs from '@/components/DateTabs';
 import MovieListRow from '@/components/MovieListRow';
 import { format } from 'date-fns';
+import { useTranslation } from '@/components/I18nProvider';
 
 // Icons removed as requested, using fallback or none
 
@@ -30,6 +31,7 @@ interface Favorite {
 }
 
 export default function Home() {
+  const { dict } = useTranslation();
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -203,11 +205,11 @@ export default function Home() {
           <div className="flex items-center gap-4 mr-2 md:mr-8 flex-shrink-0">
             <div className="flex flex-col">
               <h1 className="text-xl font-bold tracking-tight text-foreground whitespace-nowrap">
-                {process.env.NEXT_PUBLIC_APP_NAME || 'Mi megy a moziba?'}
+                {dict.metadata.title}
               </h1>
               {lastScraped && (
                 <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium opacity-70">
-                  Frissítve: {format(new Date(lastScraped), 'yyyy-MM-dd HH:mm')}
+                  {dict.common.updated} {format(new Date(lastScraped), 'yyyy-MM-dd HH:mm')}
                 </span>
               )}
             </div>
@@ -223,7 +225,7 @@ export default function Home() {
                 ? "bg-primary/80 text-primary-foreground cursor-wait"
                 : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                 }`}
-              title="Műsor frissítése"
+              title={dict.common.refreshTooltip}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -240,13 +242,13 @@ export default function Home() {
                 <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
                 <path d="M21 3v5h-5" />
               </svg>
-              <span>Frissítés</span>
+              <span>{dict.common.refresh}</span>
             </button>
 
             <button
               onClick={handleLogoutClick}
               className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-              title="Kijelentkezés"
+              title={dict.common.logoutTooltip}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -272,11 +274,11 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4 pt-3">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 opacity-50">
-            <div>Műsor betöltése...</div>
+            <div>{dict.common.loading}</div>
           </div>
         ) : (favoritesList.length === 0 && otherMovies.length === 0) ? (
           <div className="text-center py-20 opacity-50">
-            Nincs elérhető műsor.
+            {dict.common.noData}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -319,22 +321,22 @@ export default function Home() {
       {isLogoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
           <div className="bg-card border border-border rounded-lg shadow-lg max-w-sm w-full p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Kijelentkezés</h3>
+            <h3 className="text-lg font-semibold text-foreground">{dict.auth.logoutConfirmTitle}</h3>
             <p className="text-muted-foreground">
-              Biztosan ki szeretnél jelentkezni?
+              {dict.auth.logoutConfirmMessage}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsLogoutOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
               >
-                Mégsem
+                {dict.common.cancel}
               </button>
               <button
                 onClick={confirmLogout}
                 className="px-4 py-2 text-sm font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md transition-colors"
               >
-                Kijelentkezés
+                {dict.common.confirm}
               </button>
             </div>
           </div>

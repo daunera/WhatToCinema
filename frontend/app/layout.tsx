@@ -1,10 +1,14 @@
 
 import type { Metadata } from "next";
+import { getDictionary, Locale } from "@/lib/dictionaries";
 import "./globals.css";
 
+const locale = (process.env.APP_LOCALE as Locale) || 'en';
+const dict = getDictionary(locale);
+
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME || "Mi megy a moziba?",
-  description: "Menni kű abba a moziba befele, ha már ingyen vagyon!",
+  title: dict.metadata.title,
+  description: dict.metadata.description,
   robots: {
     index: false,
     follow: false,
@@ -25,19 +29,28 @@ export const metadata: Metadata = {
 
 import PasscodeGate from "@/components/PasscodeGate";
 
+
+import { I18nProvider } from "@/components/I18nProvider";
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = (process.env.APP_LOCALE as Locale) || 'en';
+  const dict = getDictionary(locale);
+
   return (
-    <html lang="hu">
+    <html lang={locale}>
       <body className="antialiased bg-background text-foreground min-h-screen flex flex-col">
-        <PasscodeGate>
-          <div className="flex-1">
-            {children}
-          </div>
-        </PasscodeGate>
+        <I18nProvider locale={locale} dict={dict}>
+          <PasscodeGate>
+            <div className="flex-1">
+              {children}
+            </div>
+          </PasscodeGate>
+        </I18nProvider>
       </body>
     </html>
   );

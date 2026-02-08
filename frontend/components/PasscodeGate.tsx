@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { verifyPasscode, checkAuth } from "@/app/actions/auth";
+import { useTranslation } from "@/components/I18nProvider";
 
 interface PasscodeGateProps {
     children: React.ReactNode;
 }
 
 export default function PasscodeGate({ children }: PasscodeGateProps) {
+    const { dict } = useTranslation();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [passcode, setPasscode] = useState("");
     const [error, setError] = useState("");
@@ -31,10 +33,10 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
             if (result.success) {
                 setIsAuthenticated(true);
             } else {
-                setError(result.error || "Helytelen jelszó");
+                setError(result.error || dict.auth.passwordError);
             }
         } catch (err) {
-            setError("Hiba történt a hitelesítés során");
+            setError(dict.auth.genericError);
         } finally {
             setIsLoading(false);
         }
@@ -43,7 +45,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
     if (isAuthenticated === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="animate-pulse text-muted-foreground">Bejelentkezés...</div>
+                <div className="animate-pulse text-muted-foreground">{dict.auth.loading}</div>
             </div>
         );
     }
@@ -54,7 +56,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
                 <div className="w-full max-w-md p-8 rounded-2xl border border-border glass shadow-2xl space-y-8 animate-in fade-in zoom-in duration-500">
                     <div className="text-center space-y-2">
                         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                            {process.env.NEXT_PUBLIC_APP_NAME || "Mi megy a moziba?"}
+                            {dict.metadata.title}
                         </h1>
                     </div>
 
@@ -64,7 +66,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
                                 type="password"
                                 value={passcode}
                                 onChange={(e) => setPasscode(e.target.value)}
-                                placeholder="Jelszó"
+                                placeholder={dict.auth.passwordPlaceholder}
                                 autoFocus
                                 className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl tracking-[0.5em] transition-all"
                                 disabled={isLoading}
@@ -84,7 +86,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
                             {isLoading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                "Belépés"
+                                dict.auth.submit
                             )}
                         </button>
                     </form>
