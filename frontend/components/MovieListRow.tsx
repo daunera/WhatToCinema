@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useTranslation } from '@/components/I18nProvider';
+import { StarIcon } from '@/components/icons';
 
 interface Showtime {
     id: number;
     cinema_name: string;
-    start_time: string; // ISO string
+    start_time: string;
     ticket_url: string | null;
     details_type: string | null;
-    age_restriction_url: string | null;
 }
 
 interface Movie {
@@ -26,34 +27,6 @@ interface MovieListRowProps {
     onToggleFavorite: (title: string) => void;
 }
 
-const StarIcon = ({ filled, onClick, titleOn, titleOff }: { filled: boolean; onClick: () => void; titleOn: string; titleOff: string }) => (
-    <button
-        onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClick();
-        }}
-        className="flex-shrink-0 focus:outline-none group/star"
-        title={filled ? titleOn : titleOff}
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill={filled ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`w-6 h-6 transition-all duration-200 ${filled
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-muted-foreground group-hover/star:text-yellow-400"
-                }`}
-        >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-    </button>
-);
-
 const AgeIcon = ({ url, age }: { url: string | null, age: string }) => {
     const [error, setError] = useState(false);
 
@@ -66,14 +39,14 @@ const AgeIcon = ({ url, age }: { url: string | null, age: string }) => {
     }
 
     return (
-        <img
+        <Image
             src={url}
             alt={age}
+            width={24}
+            height={24}
             className="h-6 w-6 object-contain"
-            onError={(e) => {
-                console.log('Image load error for:', url);
-                setError(true);
-            }}
+            unoptimized
+            onError={() => setError(true)}
         />
     );
 };
@@ -94,17 +67,20 @@ export default function MovieListRow({ movie, onToggleFavorite }: MovieListRowPr
 
     return (
         <div className="flex flex-col md:flex-row glass-card rounded-lg p-4 gap-4 transition-colors relative">
-            {/* Top/Left Section: Poster + Info (Side-by-side on mobile) */}
+            {/* Top/Left Section: Poster + Info */}
             <div className="flex flex-row gap-4 flex-grow min-w-0">
                 {/* Poster */}
                 <div className="flex-shrink-0">
                     <a href={movie.movie_url || '#'} target="_blank" rel="noreferrer" className="block relative group">
                         <div className="w-[100px] h-[150px] relative rounded-md overflow-hidden bg-muted transition-all duration-200 group-hover:scale-105 group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
                             {movie.poster_url ? (
-                                <img
+                                <Image
                                     src={movie.poster_url}
                                     alt={movie.title}
+                                    width={100}
+                                    height={150}
                                     className="w-full h-full object-cover"
+                                    unoptimized
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs text-center p-1">
@@ -125,12 +101,23 @@ export default function MovieListRow({ movie, onToggleFavorite }: MovieListRowPr
                                 </h3>
                             </a>
                             <div className="md:absolute md:top-4 md:right-4 flex-shrink-0">
-                                <StarIcon
-                                    filled={movie.isFavorite}
-                                    onClick={() => onToggleFavorite(movie.title)}
-                                    titleOn={dict.movie.removeFavorite}
-                                    titleOff={dict.movie.addFavorite}
-                                />
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onToggleFavorite(movie.title);
+                                    }}
+                                    className="flex-shrink-0 focus:outline-none group/star"
+                                    title={movie.isFavorite ? dict.movie.removeFavorite : dict.movie.addFavorite}
+                                >
+                                    <StarIcon
+                                        filled={movie.isFavorite}
+                                        className={`w-6 h-6 transition-all duration-200 ${movie.isFavorite
+                                            ? "text-yellow-400 fill-yellow-400"
+                                            : "text-muted-foreground group-hover/star:text-yellow-400"
+                                            }`}
+                                    />
+                                </button>
                             </div>
                         </div>
 

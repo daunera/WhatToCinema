@@ -2,13 +2,14 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from 'react';
-import { Dictionary, Locale, defaultLocale, dictionaries } from '@/lib/dictionaries';
+import { Dictionary, Locale } from '@/lib/dictionaries';
 import { hu, enUS } from 'date-fns/locale';
+import type { Locale as DateLocale } from 'date-fns';
 
 interface I18nContextType {
     dict: Dictionary;
     locale: Locale;
-    dateLocale: any; // date-fns locale
+    dateLocale: DateLocale;
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);

@@ -1,15 +1,13 @@
-
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import api, { getFavorites, addFavorite, removeFavorite, getStatus, triggerScrape } from '@/lib/api';
+import { getMovies, getFavorites, addFavorite, removeFavorite, getStatus, triggerScrape } from '@/lib/api';
 import { logout } from '@/app/actions/auth';
 import DateTabs from '@/components/DateTabs';
 import MovieListRow from '@/components/MovieListRow';
 import { format } from 'date-fns';
 import { useTranslation } from '@/components/I18nProvider';
-
-// Icons removed as requested, using fallback or none
+import { RefreshIcon, LogoutIcon } from '@/components/icons';
 
 interface Showtime {
   id: number;
@@ -24,10 +22,6 @@ interface Showtime {
   age_restriction: string | null;
   age_restriction_url: string | null;
   details_type: string | null;
-}
-
-interface Favorite {
-  movie_title: string;
 }
 
 export default function Home() {
@@ -46,23 +40,20 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [showtimesRes, favoritesRes, statusRes] = await Promise.all([
-          api.get<Showtime[]>('/movies'),
+        const [showtimesData, favoritesData, statusData] = await Promise.all([
+          getMovies(),
           getFavorites(),
           getStatus()
         ]);
 
-        setShowtimes(showtimesRes.data);
-        setFavorites(new Set(favoritesRes.map((f: Favorite) => f.movie_title)));
-        setLastScraped(statusRes.last_scrape_time);
+        setShowtimes(showtimesData);
+        setFavorites(new Set(favoritesData.map((f: { movie_title: string }) => f.movie_title)));
+        setLastScraped(statusData.last_scrape_time);
 
-        // Select first available date by default
-        if (showtimesRes.data.length > 0) {
-          // Find earliest unique date
-          const sorted = [...showtimesRes.data].sort((a, b) => new Date(a.date_str).getTime() - new Date(b.date_str).getTime());
+        if (showtimesData.length > 0) {
+          const sorted = [...showtimesData].sort((a, b) => new Date(a.date_str).getTime() - new Date(b.date_str).getTime());
           setSelectedDate(sorted[0].date_str);
 
-          // Auto-select default cinema if configured
           const defaultCinema = process.env.NEXT_PUBLIC_DEFAULT_CINEMA;
           if (defaultCinema) {
             const cinemasOnDate = Array.from(new Set(sorted.filter(st => st.date_str === sorted[0].date_str).map(st => st.cinema_name)));
@@ -101,7 +92,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to update favorite", error);
-      // Revert on error
       setFavorites(prev => {
         const next = new Set(prev);
         if (isFav) next.add(movieTitle);
@@ -116,25 +106,24 @@ export default function Home() {
     setIsSyncing(true);
     try {
       await triggerScrape();
-      // Wait a bit for background scrape to start, then poll or just wait
-      // For simplicity, we'll just wait 5 seconds and refresh
       setTimeout(async () => {
-        const [showtimesRes, statusRes] = await Promise.all([
-          api.get<Showtime[]>('/movies'),
-          getStatus()
-        ]);
-        setShowtimes(showtimesRes.data);
-        setLastScraped(statusRes.last_scrape_time);
-        setIsSyncing(false);
+        try {
+          const [showtimesData, statusData] = await Promise.all([
+            getMovies(),
+            getStatus()
+          ]);
+          setShowtimes(showtimesData);
+          setLastScraped(statusData.last_scrape_time);
+        } catch (error) {
+          console.error("Failed to refresh after sync", error);
+        } finally {
+          setIsSyncing(false);
+        }
       }, 5000);
     } catch (error) {
       console.error("Sync failed", error);
       setIsSyncing(false);
     }
-  };
-
-  const handleLogoutClick = () => {
-    setIsLogoutOpen(true);
   };
 
   const confirmLogout = async () => {
@@ -144,22 +133,17 @@ export default function Home() {
 
   // Process data for view
   const { dates, favoritesList, otherMovies, cinemas } = useMemo(() => {
-    // Extract unique dates
     const uniqueDates = Array.from(new Set(showtimes.map(st => st.date_str))).sort();
 
-    // Filter by selected date
     const showtimesForDate = showtimes.filter(st => st.date_str === selectedDate);
 
-    // Extract unique cinemas for the selected date
     const uniqueCinemas = Array.from(new Set(showtimesForDate.map(st => st.cinema_name))).sort();
 
-    // Filter by selected cinema
     const filteredShowtimes = selectedCinema
       ? showtimesForDate.filter(st => st.cinema_name === selectedCinema)
       : showtimesForDate;
 
-    // Group by Movie
-    const moviesMap = new Map();
+    const moviesMap = new Map<string, { title: string; poster_url: string | null; movie_url: string | null; genre: string | null; age_restriction: string | null; age_restriction_url: string | null; showtimes: { id: number; cinema_name: string; start_time: string; ticket_url: string | null; details_type: string | null }[]; isFavorite: boolean }>();
 
     filteredShowtimes.forEach(st => {
       if (!moviesMap.has(st.movie_title)) {
@@ -174,8 +158,7 @@ export default function Home() {
           isFavorite: favorites.has(st.movie_title)
         });
       }
-      // Add showtime
-      const movie = moviesMap.get(st.movie_title);
+      const movie = moviesMap.get(st.movie_title)!;
       movie.showtimes.push({
         id: st.id,
         cinema_name: st.cinema_name,
@@ -185,21 +168,21 @@ export default function Home() {
       });
     });
 
-    // Sort alphabetical within groups
-    const sortFn = (a: any, b: any) => a.title.localeCompare(b.title, 'hu');
-
-    const favoriteMovies: any[] = [];
-    const regularMovies: any[] = [];
+    const favoritesList: ReturnType<typeof moviesMap.get>[] = [];
+    const otherMovies: ReturnType<typeof moviesMap.get>[] = [];
 
     Array.from(moviesMap.values()).forEach(m => {
-      if (m.isFavorite) favoriteMovies.push(m);
-      else regularMovies.push(m);
+      if (m.isFavorite) favoritesList.push(m);
+      else otherMovies.push(m);
     });
+
+    const sortByTitle = (arr: typeof favoritesList) =>
+      arr.sort((a, b) => (a?.title || '').localeCompare(b?.title || '', 'hu'));
 
     return {
       dates: uniqueDates,
-      favoritesList: favoriteMovies.sort(sortFn),
-      otherMovies: regularMovies.sort(sortFn),
+      favoritesList: sortByTitle(favoritesList),
+      otherMovies: sortByTitle(otherMovies),
       cinemas: uniqueCinemas
     };
   }, [showtimes, selectedDate, favorites, selectedCinema]);
@@ -222,8 +205,6 @@ export default function Home() {
                 </span>
               )}
             </div>
-
-
           </div>
 
           <div className="flex-1 flex justify-end gap-2">
@@ -236,44 +217,16 @@ export default function Home() {
                 }`}
               title={dict.common.refreshTooltip}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={isSyncing ? "animate-spin" : ""}
-              >
-                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-              </svg>
+              <RefreshIcon className={isSyncing ? "animate-spin" : ""} />
               <span>{dict.common.refresh}</span>
             </button>
 
             <button
-              onClick={handleLogoutClick}
+              onClick={() => setIsLogoutOpen(true)}
               className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
               title={dict.common.logoutTooltip}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
+              <LogoutIcon />
             </button>
           </div>
         </div>
@@ -307,8 +260,8 @@ export default function Home() {
               <>
                 {favoritesList.map((movie) => (
                   <MovieListRow
-                    key={movie.title}
-                    movie={movie}
+                    key={movie!.title}
+                    movie={movie!}
                     onToggleFavorite={handleToggleFavorite}
                   />
                 ))}
@@ -319,8 +272,8 @@ export default function Home() {
 
                 {otherMovies.map((movie) => (
                   <MovieListRow
-                    key={movie.title}
-                    movie={movie}
+                    key={movie!.title}
+                    movie={movie!}
                     onToggleFavorite={handleToggleFavorite}
                   />
                 ))}

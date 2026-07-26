@@ -1,36 +1,61 @@
+const API_BASE = '/backend';
 
-import axios from 'axios';
+interface Favorite {
+  movie_title: string;
+}
 
-const api = axios.create({
-    baseURL: '/backend', // Requests go to Next.js middleware -> Backend
+interface Status {
+  last_scrape_time: string | null;
+}
+
+interface Showtime {
+  id: number;
+  cinema_name: string;
+  movie_title: string;
+  start_time: string;
+  date_str: string;
+  ticket_url: string | null;
+  movie_url: string | null;
+  poster_url: string | null;
+  genre: string | null;
+  age_restriction: string | null;
+  age_restriction_url: string | null;
+  details_type: string | null;
+}
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { headers: customHeaders, ...rest } = options || {};
+  const res = await fetch(`${API_BASE}${path}`, {
     headers: {
-        'Content-Type': 'application/json',
+      'Content-Type': 'application/json',
+      ...customHeaders,
     },
-});
+    ...rest,
+  });
 
-export const getFavorites = async () => {
-    const response = await api.get('/favorites');
-    return response.data;
-};
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status} ${res.statusText}`);
+  }
 
-export const addFavorite = async (movieTitle: string) => {
-    const response = await api.post('/favorites', { movie_title: movieTitle });
-    return response.data;
-};
+  return res.json();
+}
 
-export const removeFavorite = async (movieTitle: string) => {
-    const response = await api.delete(`/favorites/${encodeURIComponent(movieTitle)}`);
-    return response.data;
-};
+export const getFavorites = () => request<Favorite[]>('/favorites');
 
-export const getStatus = async () => {
-    const response = await api.get('/status');
-    return response.data;
-};
+export const addFavorite = (movieTitle: string) =>
+  request<void>('/favorites', {
+    method: 'POST',
+    body: JSON.stringify({ movie_title: movieTitle }),
+  });
 
-export const triggerScrape = async () => {
-    const response = await api.post('/scrape');
-    return response.data;
-};
+export const removeFavorite = (movieTitle: string) =>
+  request<void>(`/favorites/${encodeURIComponent(movieTitle)}`, {
+    method: 'DELETE',
+  });
 
-export default api;
+export const getStatus = () => request<Status>('/status');
+
+export const getMovies = () => request<Showtime[]>('/movies');
+
+export const triggerScrape = () =>
+  request<void>('/scrape', { method: 'POST' });

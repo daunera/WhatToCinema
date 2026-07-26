@@ -35,7 +35,7 @@ export default function PasscodeGate({ children }: PasscodeGateProps) {
             } else {
                 setError(result.error || dict.auth.passwordError);
             }
-        } catch (err) {
+        } catch {
             setError(dict.auth.genericError);
         } finally {
             setIsLoading(false);

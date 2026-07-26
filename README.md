@@ -42,7 +42,7 @@ The application is fully containerized using Docker, making deployment straightf
     | :--- | :--- | :--- |
     | `AUTH_PASSCODE` | **Required.** The passcode users must enter to access the UI. | `123456` |
     | `APP_LOCALE` | Default application language (`hu` or `en`). | `hu` |
-    | `NEXT_PUBLIC_DEFAULT_CINEMA` | (Optional) Auto-selects this cinema on load. Leave empty for no default. | `MOM Park` |
+    | `NEXT_PUBLIC_DEFAULT_CINEMA` | (Optional) Auto-selects this cinema on load. Leave empty for no default. | `Cinema Example` |
 
 
 3.  **Run with Docker Compose:**
