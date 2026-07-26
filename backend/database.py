@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import datetime
+from sqlalchemy.orm import declarative_base, sessionmaker
+from datetime import datetime, timezone
 import os
 
 # Ensure data directory exists
@@ -34,7 +33,7 @@ class Favorite(Base):
     __tablename__ = "favorites"
 
     movie_title = Column(String, primary_key=True, index=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class AppSettings(Base):
     __tablename__ = "app_settings"

@@ -6,10 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from database import SessionLocal, Showtime, Favorite, AppSettings, get_db
-from dotenv import load_dotenv
-
-load_dotenv()
+from database import SessionLocal, Showtime, Favorite, AppSettings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -59,6 +56,11 @@ def get_details_type(type_text):
 HU_MONTHS = {
     "január": 1, "február": 2, "március": 3, "április": 4, "május": 5, "június": 6,
     "július": 7, "augusztus": 8, "szeptember": 9, "október": 10, "november": 11, "december": 12
+}
+
+AGE_MAP = {
+    "1": "KN", "2": "6", "3": "12", "4": "16", "5": "18", "6": "X",
+    "7": "?", "8": "KN", "9": "6", "10": "12", "11": "16", "12": "18", "13": "X"
 }
 
 def scrape_cinema_site(url_base):
@@ -206,13 +208,6 @@ def scrape_cinema_site(url_base):
                     meta_div = info_td.find("div", class_="meta")
                     genres = []
                     age_restriction = None
-                    
-                    # Age Map (Copied)
-                    AGE_MAP = {
-                        "1": "KN", "2": "6", "3": "12", "4": "16", "5": "18", "6": "X",
-                        "7": "?", "8": "KN", "9": "6", "10": "12", "11": "16", "12": "18", "13": "X"
-                    }
-
                     if meta_div:
                         age_restriction_url = None
                         for genre_div in meta_div.find_all("div", class_="genre"):
@@ -225,11 +220,7 @@ def scrape_cinema_site(url_base):
                             if match:
                                 age_id = match.group(1)
                                 age_restriction = AGE_MAP.get(age_id, age_id)
-                                age_restriction_url = f"{url.rstrip('/')}/{src.lstrip('/')}"
-                                if not src.startswith("http"):
-                                    age_restriction_url = f"{url.rstrip('/')}/{src.lstrip('/')}"
-                                else:
-                                    age_restriction_url = src
+                                age_restriction_url = src if src.startswith("http") else f"{url.rstrip('/')}/{src.lstrip('/')}"
                     
                     genre_str = ", ".join(genres) if genres else None
 
