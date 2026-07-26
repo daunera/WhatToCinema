@@ -55,16 +55,19 @@ export default function DateTabs({
             <Menu as="div" className="relative shrink-0 mr-1">
                 <Menu.Button
                     className={clsx(
-                        "flex items-center justify-center w-12 h-12 rounded-lg transition-colors border",
+                        "flex items-center justify-center h-12 rounded-lg transition-colors border gap-2 px-4",
                         selectedCinema
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-muted/50 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
                     )}
-                    title={dict.common.filterCinema}
+                    title={selectedCinema || dict.common.filterCinema}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                     </svg>
+                    {selectedCinema && (
+                        <span className="text-sm font-medium truncate max-w-[120px]">{selectedCinema}</span>
+                    )}
                 </Menu.Button>
                 <Transition
                     as={React.Fragment}

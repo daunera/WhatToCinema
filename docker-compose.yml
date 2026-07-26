@@ -25,6 +25,7 @@ services:
       - API_KEY=${API_KEY}
       - AUTH_PASSCODE=${AUTH_PASSCODE}
       - APP_LOCALE=${APP_LOCALE}
+      - NEXT_PUBLIC_DEFAULT_CINEMA=${NEXT_PUBLIC_DEFAULT_CINEMA}
     depends_on:
       - backend
     networks:

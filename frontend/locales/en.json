@@ -16,7 +16,8 @@
         "updated": "Updated:",
         "noData": "No schedule available.",
         "allCinemas": "All cinemas",
-        "filterCinema": "Filter cinema"
+        "filterCinema": "Filter cinema",
+        "clearFilter": "Clear filter"
     },
     "movie": {
         "noImage": "No image",

@@ -16,7 +16,8 @@
         "updated": "Frissítve:",
         "noData": "Nincs elérhető műsor.",
         "allCinemas": "Összes mozi",
-        "filterCinema": "Mozi szűrése"
+        "filterCinema": "Mozi szűrése",
+        "clearFilter": "Szűrő törlése"
     },
     "movie": {
         "noImage": "Nincs kép",

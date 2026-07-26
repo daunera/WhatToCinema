@@ -61,6 +61,15 @@ export default function Home() {
           // Find earliest unique date
           const sorted = [...showtimesRes.data].sort((a, b) => new Date(a.date_str).getTime() - new Date(b.date_str).getTime());
           setSelectedDate(sorted[0].date_str);
+
+          // Auto-select default cinema if configured
+          const defaultCinema = process.env.NEXT_PUBLIC_DEFAULT_CINEMA;
+          if (defaultCinema) {
+            const cinemasOnDate = Array.from(new Set(sorted.filter(st => st.date_str === sorted[0].date_str).map(st => st.cinema_name)));
+            if (cinemasOnDate.includes(defaultCinema)) {
+              setSelectedCinema(defaultCinema);
+            }
+          }
         } else {
           setSelectedDate(format(new Date(), 'yyyy-MM-dd'));
         }
@@ -276,10 +285,6 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center py-20 opacity-50">
             <div>{dict.common.loading}</div>
           </div>
-        ) : (favoritesList.length === 0 && otherMovies.length === 0) ? (
-          <div className="text-center py-20 opacity-50">
-            {dict.common.noData}
-          </div>
         ) : (
           <div className="flex flex-col gap-4">
             {/* Date Tabs (moved to content) */}
@@ -294,25 +299,33 @@ export default function Home() {
               />
             </div>
 
-            {favoritesList.map((movie) => (
-              <MovieListRow
-                key={movie.title}
-                movie={movie}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
+            {favoritesList.length === 0 && otherMovies.length === 0 ? (
+              <div className="text-center py-20 opacity-50">
+                {dict.common.noData}
+              </div>
+            ) : (
+              <>
+                {favoritesList.map((movie) => (
+                  <MovieListRow
+                    key={movie.title}
+                    movie={movie}
+                    onToggleFavorite={handleToggleFavorite}
+                  />
+                ))}
 
-            {favoritesList.length > 0 && otherMovies.length > 0 && (
-              <hr className="my-2 border-border" />
+                {favoritesList.length > 0 && otherMovies.length > 0 && (
+                  <hr className="my-2 border-border" />
+                )}
+
+                {otherMovies.map((movie) => (
+                  <MovieListRow
+                    key={movie.title}
+                    movie={movie}
+                    onToggleFavorite={handleToggleFavorite}
+                  />
+                ))}
+              </>
             )}
-
-            {otherMovies.map((movie) => (
-              <MovieListRow
-                key={movie.title}
-                movie={movie}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
           </div>
         )}
       </div>
